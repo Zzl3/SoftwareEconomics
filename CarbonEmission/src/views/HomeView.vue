@@ -104,6 +104,7 @@ export default {
       },
       mainumberarray: [],
       maicostarray: [],
+      maiinfo: [],
 
       sellform: false,
       sellformtext: {
@@ -112,6 +113,8 @@ export default {
       },
       sellnumberarray: [],
       sellcostarray: [],
+      sellinfo: [],
+      result:[]
     };
   },
   mounted() {
@@ -130,22 +133,80 @@ export default {
       //设置定时器
       this.clearTimeSet = setInterval(() => {
         this.browseTime++;
-        console.log(this.browseTime, "时长累计");
+        //console.log(this.browseTime, "时长累计");
       }, 1000);
     },
     maievent() {
       this.maiform = false;
       this.mainumberarray.push(this.maiformtext.number);
       this.maicostarray.push(this.maiformtext.cost);
-      console.log(this.mainumberarray);
-      console.log(this.maicostarray);
+      let mai_obj = {
+        num: this.maiformtext.number,
+        cost: this.maiformtext.cost
+      };
+      this.maiinfo.push(mai_obj);
+      this.calc_balancePoint();
+      //console.log(this.mainumberarray);
+      //console.log(this.maicostarray);
     },
     sellevent() {
       this.sellform = false;
       this.sellnumberarray.push(this.sellformtext.number);
       this.sellcostarray.push(this.sellformtext.cost);
-      console.log(this.sellnumberarray);
-      console.log(this.sellcostarray);
+      let sell_obj = {
+        num: this.sellformtext.number,
+        cost: this.sellformtext.cost
+      };
+      this.sellinfo.push(sell_obj);
+      this.calc_balancePoint();
+      //console.log(this.sellnumberarray);
+      //console.log(this.sellcostarray);
+    },
+    merge_cost() {
+      //合并供给和需求报价，并从小到大排序
+      var setobj = new Set(this.maicostarray);
+      for (var i = 0; i < this.sellcostarray.length; i++){
+        setobj.add(this.sellcostarray[i]);
+      }
+      var cost = Array.from(setobj).sort(function (a, b) { return a - b });
+      //把去重后的报价填入到result数组中
+      //在这里或许可以加上交易公平判断，目前没写
+      for (var j = 0; j < cost.length; j++){
+        let res_obj = {
+          value: cost[j],
+          mai: 0,
+          sell: 0,
+          dist:0
+        };
+        this.result.push(res_obj);
+      }
+    },
+    calc_balancePoint() {
+      //需求方按照报价从高到低排序
+      this.maiinfo.sort(function (a, b) { return b.cost - a.cost });
+      //供给方按照报价从低到高排序
+      this.sellinfo.sort(function (a, b) { return a.cost - b.cost });
+      this.result.splice(0,this.result.length);
+      this.merge_cost();
+      //遍历result，计算供给方、需求方的供给量和需求量，存入result中
+      for (var i = 0; i < this.result.length; i++){
+        var value = this.result[i].value;
+        //需求方：报价>=价格时进入市场
+        for (var p_mai = 0; p_mai < this.maiinfo.length; p_mai++){
+          if (this.maiinfo[p_mai].cost >= value)
+            this.result[i].mai += this.maiinfo[p_mai].num;
+          else
+            break;
+        }
+        //供给方：报价<=价格时进入市场
+        for (var p_sell = 0; p_sell < this.sellinfo.length; p_sell++){
+          if (this.sellinfo[p_sell].cost <= value)
+            this.result[i].sell += this.sellinfo[p_sell].num;
+          else
+            break;
+        }
+        this.result[i].dist = Math.abs(this.result[i].mai - this.result[i].sell);
+      }
     },
   },
 };
