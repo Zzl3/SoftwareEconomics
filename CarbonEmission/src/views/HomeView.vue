@@ -3,21 +3,43 @@
     <el-container>
       <el-header>拍卖名称+参与状态</el-header>
       <el-container>
-        <el-aside width="450px">意愿竞拍所得表格区域</el-aside>
+        <el-aside width="460px">
+          <div style="margin:5px;height: 30px;padding: 5px;text-align: left;font-weight: bold;">意愿竞拍所得表格区域</div>
+          <el-card id="market-trade-card" shadow="hover">
+            <div slot="header" class="clearfix">
+              <span>市场交易记录</span>
+            </div>
+            <el-table :data="marketData" style="width: 100%" :max-height="200">
+              <el-table-column prop="id" label="交易id"></el-table-column>
+              <el-table-column prop="type" label="交易类型"></el-table-column>
+              <el-table-column prop="price" label="价格"></el-table-column>
+              <el-table-column prop="num" label="数量"></el-table-column>
+              <el-table-column prop="time" label="交易时间"></el-table-column>
+            </el-table>
+          </el-card>
+
+          <el-card id="personal-trade-card" shadow="hover">
+            <div slot="header" class="clearfix">
+              <span>我的交易记录</span>
+            </div>
+            <el-table :data="myData" style="width: 100%;" :max-height="200">
+              <el-table-column prop="id" label="交易id"></el-table-column>
+              <el-table-column prop="type" label="交易类型"></el-table-column>
+              <el-table-column prop="price" label="价格"></el-table-column>
+              <el-table-column prop="num" label="数量"></el-table-column>
+              <el-table-column prop="time" label="交易时间"></el-table-column>
+            </el-table>
+          </el-card>
+        </el-aside>
+
         <el-main>
           <div id="details">
             <el-descriptions title="实验详情">
               <template slot="extra">
-                <el-button type="primary" size="small" @click="restart"
-                  >重新开始</el-button
-                >
+                <el-button type="primary" size="small" @click="restart">重新开始</el-button>
               </template>
-              <el-descriptions-item label="当前实验进度"
-                ><el-tag size="small">进行中</el-tag></el-descriptions-item
-              >
-              <el-descriptions-item label="实验进行时长"
-                >{{ this.browseTime }}s</el-descriptions-item
-              >
+              <el-descriptions-item label="当前实验进度"><el-tag size="small">进行中</el-tag></el-descriptions-item>
+              <el-descriptions-item label="实验进行时长">{{ this.browseTime }}s</el-descriptions-item>
               <el-descriptions-item label="总的参与人数">{{
                 mainumberarray.length + sellnumberarray.length
               }}</el-descriptions-item>
@@ -30,26 +52,15 @@
             </el-descriptions>
           </div>
           <div id="buttons">
-            <el-button type="button" @click="maiform = true" class="costsell"
-              >我是买家</el-button
-            >
+            <el-button type="button" @click="maiform = true" class="costsell">我是买家</el-button>
             <el-dialog title="此次买方信息" :visible.sync="maiform" width="450px">
               <el-form :model="maiformtext" id="maiform">
                 <el-form-item label="购买数量">
-                  <el-input
-                    clearable
-                    v-model.number="maiformtext.number"
-                    style="width: 180px"
-                    placeholder="请输入购买数量"
-                  ></el-input>
+                  <el-input clearable v-model.number="maiformtext.number" style="width: 180px"
+                    placeholder="请输入购买数量"></el-input>
                 </el-form-item>
                 <el-form-item label="购买价格">
-                  <el-input
-                    clearable
-                    v-model="maiformtext.cost"
-                    style="width: 180px"
-                    placeholder="请输入购买价格"
-                  ></el-input>
+                  <el-input clearable v-model="maiformtext.cost" style="width: 180px" placeholder="请输入购买价格"></el-input>
                 </el-form-item>
               </el-form>
               <div slot="footer" class="dialog-footer">
@@ -62,20 +73,11 @@
             <el-dialog title="此次卖方信息" :visible.sync="sellform" width="450px">
               <el-form :model="sellformtext" id="sellform">
                 <el-form-item label="购买数量">
-                  <el-input
-                    clearable
-                    v-model.number="sellformtext.number"
-                    style="width: 180px"
-                    placeholder="请输入卖出数量"
-                  ></el-input>
+                  <el-input clearable v-model.number="sellformtext.number" style="width: 180px"
+                    placeholder="请输入卖出数量"></el-input>
                 </el-form-item>
                 <el-form-item label="卖出价格">
-                  <el-input
-                    clearable
-                    v-model="sellformtext.cost"
-                    style="width: 180px"
-                    placeholder="请输入卖出价格"
-                  ></el-input>
+                  <el-input clearable v-model="sellformtext.cost" style="width: 180px" placeholder="请输入卖出价格"></el-input>
                 </el-form-item>
               </el-form>
               <div slot="footer" class="dialog-footer">
@@ -86,7 +88,7 @@
           </div>
           <div id="charts">
             <div class="echart" id="mychart" :style="myChartStyle"></div>
-<!--            供需与价格曲线区域-->
+            <!--            供需与价格曲线区域-->
           </div>
         </el-main>
       </el-container>
@@ -116,18 +118,29 @@ export default {
         number: "",
         cost: "",
       },
+      marketData: [
+        { id:1, type: "买入", num: 1, price: 100, time: "2023/4/4" },
+        { id:2, type: "卖出", num: 3, price: 90, time: "2023/4/4" },
+        { id:3, type: "卖出", num: 2, price: 80, time: "2023/4/4" },
+        { id:4, type: "买入", num: 2, price: 800, time: "2023/4/4" },
+      ],
+      myData: [
+      { id:2, type: "卖出", num: 3, price: 90, time: "2023/4/4" },
+      { id:3, type: "卖出", num: 2, price: 80, time: "2023/4/4" },
+      ],
       sellnumberarray: [],
       sellcostarray: [],
       sellinfo: [],
-      result:[],
+      result: [],
 
-      myChart:{},
+      myChart: {},
       myChartStyle: { float: "left", width: "100%", height: "400px" } //图表样式
     };
   },
   mounted() {
     this.setTime(); // 页面加载完成后开始计时
     this.initEcharts();
+    this.setScrollBar(); //调用JS调整滚动条样式
   },
 
   methods: {
@@ -137,6 +150,24 @@ export default {
       this.sellcostarray = [];
       this.mainumberarray = [];
       this.maicostarray = [];
+    },
+    setScrollBar() {
+      const scrollbarStyle = `
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #c1c1c1;
+    border-radius: 6px;
+  }
+`;
+
+      const styleElement = document.createElement('style');
+      styleElement.type = 'text/css';
+      styleElement.appendChild(document.createTextNode(scrollbarStyle));
+      document.head.appendChild(styleElement);
+
     },
     setTime() {
       //设置定时器
@@ -175,18 +206,18 @@ export default {
     merge_cost() {
       //合并供给和需求报价，并从小到大排序
       var setobj = new Set(this.maicostarray);
-      for (var i = 0; i < this.sellcostarray.length; i++){
+      for (var i = 0; i < this.sellcostarray.length; i++) {
         setobj.add(this.sellcostarray[i]);
       }
       var cost = Array.from(setobj).sort(function (a, b) { return a - b });
       //把去重后的报价填入到result数组中
       //在这里或许可以加上交易公平判断，目前没写
-      for (var j = 0; j < cost.length; j++){
+      for (var j = 0; j < cost.length; j++) {
         let res_obj = {
           value: cost[j],
           mai: 0,
           sell: 0,
-          dist:0
+          dist: 0
         };
         this.result.push(res_obj);
       }
@@ -196,20 +227,20 @@ export default {
       this.maiinfo.sort(function (a, b) { return b.cost - a.cost });
       //供给方按照报价从低到高排序
       this.sellinfo.sort(function (a, b) { return a.cost - b.cost });
-      this.result.splice(0,this.result.length);
+      this.result.splice(0, this.result.length);
       this.merge_cost();
       //遍历result，计算供给方、需求方的供给量和需求量，存入result中
-      for (var i = 0; i < this.result.length; i++){
+      for (var i = 0; i < this.result.length; i++) {
         var value = this.result[i].value;
         //需求方：报价>=价格时进入市场
-        for (var p_mai = 0; p_mai < this.maiinfo.length; p_mai++){
+        for (var p_mai = 0; p_mai < this.maiinfo.length; p_mai++) {
           if (this.maiinfo[p_mai].cost >= value)
             this.result[i].mai += this.maiinfo[p_mai].num;
           else
             break;
         }
         //供给方：报价<=价格时进入市场
-        for (var p_sell = 0; p_sell < this.sellinfo.length; p_sell++){
+        for (var p_sell = 0; p_sell < this.sellinfo.length; p_sell++) {
           if (this.sellinfo[p_sell].cost <= value)
             this.result[i].sell += this.sellinfo[p_sell].num;
           else
@@ -220,17 +251,17 @@ export default {
       }
     },
     initEcharts() {
-      var xData=[]
-      var buy=[]
-      var sell=[]
+      var xData = []
+      var buy = []
+      var sell = []
       /*var xData=this.sellnumberarray
       var buy=this.maicostarray
       var sell=this.sellcostarray*/
       this.calc_balancePoint()
       for (let i = 0; i < this.result.length; i++) {
-        xData[i]=this.result[i].value
-        buy[i]=this.result[i].mai
-        sell[i]=this.result[i].sell
+        xData[i] = this.result[i].value
+        buy[i] = this.result[i].mai
+        sell[i] = this.result[i].sell
       }
       console.log("xData")
       console.log(xData)
@@ -241,14 +272,14 @@ export default {
       const option = {
         xAxis: {
           data: xData,
-          name:"市场价格"
+          name: "市场价格"
         },
         legend: { // 图例
           data: ["需求", "供给"],
           bottom: "0%"
         },
         yAxis: {
-          name:"供给量/需求量"
+          name: "供给量/需求量"
         },
         series: [
           {
@@ -295,38 +326,58 @@ export default {
   text-align: center;
   line-height: 60px;
 }
+
 .el-aside {
   background-color: #d3dce6;
   color: #333;
   text-align: center;
-  line-height: 200px;
+  /* line-height: 200px; */
 }
+
 .el-main {
   background-color: #e9eef3;
   color: #333;
   text-align: center;
   line-height: 700px;
 }
+
+#market-trade-card {
+  height: 270px;
+  margin: 5px;
+}
+
+#personal-trade-card {
+  height: 270px;
+  margin: 5px;
+  margin-top: 15px;
+}
+
 #details {
   line-height: 10px;
 }
+
 #buttons {
   line-height: 80px;
   background-color: #b3c0d1;
 }
+
 #charts {
   line-height: 500px;
   background-color: antiquewhite;
 }
-#maiform >>> .el-form-item__label {
+
+#maiform>>>.el-form-item__label {
   font-size: 15px;
 }
-#sellform >>> .el-form-item__label {
+
+#sellform>>>.el-form-item__label {
   font-size: 15px;
 }
+
 .costsell {
   margin-right: 200px;
 }
+
 .el-descriptions__body {
   line-height: 430px;
 }
