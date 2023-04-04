@@ -84,7 +84,10 @@
               </div>
             </el-dialog>
           </div>
-          <div id="charts">供需与价格曲线区域</div>
+          <div id="charts">
+            <div class="echart" id="mychart" :style="myChartStyle"></div>
+<!--            供需与价格曲线区域-->
+          </div>
         </el-main>
       </el-container>
     </el-container>
@@ -92,6 +95,8 @@
 </template>
 
 <script>
+import * as echarts from "echarts";
+
 export default {
   name: "HomeView",
   data() {
@@ -114,11 +119,15 @@ export default {
       sellnumberarray: [],
       sellcostarray: [],
       sellinfo: [],
-      result:[]
+      result:[],
+
+      myChart:{},
+      myChartStyle: { float: "left", width: "100%", height: "400px" } //图表样式
     };
   },
   mounted() {
     this.setTime(); // 页面加载完成后开始计时
+    this.initEcharts();
   },
 
   methods: {
@@ -133,6 +142,7 @@ export default {
       //设置定时器
       this.clearTimeSet = setInterval(() => {
         this.browseTime++;
+        this.initEcharts();
         //console.log(this.browseTime, "时长累计");
       }, 1000);
     },
@@ -206,8 +216,74 @@ export default {
             break;
         }
         this.result[i].dist = Math.abs(this.result[i].mai - this.result[i].sell);
+
       }
     },
+    initEcharts() {
+      var xData=[]
+      var buy=[]
+      var sell=[]
+      /*var xData=this.sellnumberarray
+      var buy=this.maicostarray
+      var sell=this.sellcostarray*/
+      this.calc_balancePoint()
+      for (let i = 0; i < this.result.length; i++) {
+        xData[i]=this.result[i].value
+        buy[i]=this.result[i].mai
+        sell[i]=this.result[i].sell
+      }
+      console.log("xData")
+      console.log(xData)
+      console.log("buy")
+      console.log(buy)
+      console.log("sell")
+      console.log(sell)
+      const option = {
+        xAxis: {
+          data: xData,
+          name:"市场价格"
+        },
+        legend: { // 图例
+          data: ["需求", "供给"],
+          bottom: "0%"
+        },
+        yAxis: {
+          name:"供给量/需求量"
+        },
+        series: [
+          {
+            name: "需求",
+            data: buy,
+            type: "line", // 类型设置为折线图
+            label: {
+              show: true,
+              position: "top",
+              textStyle: {
+                fontSize: 16
+              }
+            }
+          },
+          {
+            name: "供给",
+            data: sell,
+            type: "line", // 类型设置为折线图
+            label: {
+              show: true,
+              position: "top",
+              textStyle: {
+                fontSize: 16
+              }
+            }
+          }
+        ]
+      };
+      this.myChart = echarts.init(document.getElementById("mychart"));
+      this.myChart.setOption(option);
+      //随着屏幕大小调节图表
+      window.addEventListener("resize", () => {
+        this.myChart.resize();
+      });
+    }
   },
 };
 </script>
